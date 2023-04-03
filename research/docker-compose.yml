@@ -1,0 +1,27 @@
+version: '3'
+services:
+  cassandra:
+    image: cassandra:latest
+    ports:
+      - 9042:9042
+    deploy:
+      resources:
+        limits:
+          cpus: '6'
+          memory: 3G
+        reservations:
+          cpus: '6'
+          memory: 3G
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    deploy:
+      resources:
+        limits:
+          cpus: '6'
+          memory: 3G
+        reservations:
+          cpus: '6'
+          memory: 3G
