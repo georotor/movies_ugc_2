@@ -1,9 +1,7 @@
 import random
-from datetime import datetime, timedelta
+from datetime import datetime
 
-from cassandra import ConsistencyLevel
 from cassandra.cluster import Cluster
-from cassandra.query import BatchStatement
 
 from config import settings
 
@@ -45,27 +43,52 @@ class TestCassandra:
         self.session.execute('DROP KEYSPACE research')
         self.cluster.shutdown()
 
-    def bookmarks(self, data: list) -> timedelta:
+    def bookmarks(self, data: list) -> list:
         insert = self.session.prepare('INSERT INTO bookmarks(user_id, film_ids) VALUES(?, ?)')
         for user_id, film_id in data:
             self.session.execute(insert, (user_id, (film_id,)))
 
-        start = datetime.now()
+        res = []
+
         for _ in range(settings.bookmarks_count):
+            start = datetime.now()
+
             user_id, film_id = random.choice(data)
             self.session.execute("SELECT * FROM bookmarks WHERE user_id={}".format(user_id)).one()
-        end = datetime.now()
 
-        return end - start
+            end = datetime.now()
+            res.append((end - start).microseconds)
 
-    def likes(self, data: list, film_ids: list) -> timedelta:
+        return res
+
+    def likes(self, data: list, film_ids: list) -> list:
         insert = self.session.prepare('INSERT INTO likes(film_id, user_id, score) VALUES(?, ?, ?)')
         for row in data:
             self.session.execute(insert, row)
 
-        start = datetime.now()
-        for film_id in film_ids:
-            self.session.execute("SELECT AVG (score) FROM likes WHERE film_id={}".format(film_id)).one()
-        end = datetime.now()
+        res = []
 
-        return end - start
+        for film_id in film_ids:
+            start = datetime.now()
+
+            self.session.execute("SELECT AVG (score) FROM likes WHERE film_id={}".format(film_id)).one()
+
+            end = datetime.now()
+            res.append((end - start).microseconds)
+
+        return res
+
+    def likes_insert(self, data: list) -> list:
+        res = []
+
+        insert = self.session.prepare('INSERT INTO likes(film_id, user_id, score) VALUES(?, ?, ?)')
+        for film_id, user_id, score in data:
+            start = datetime.now()
+
+            self.session.execute(insert, (film_id, user_id, score))
+            self.session.execute("SELECT AVG (score) FROM likes WHERE film_id={}".format(film_id)).one()
+
+            end = datetime.now()
+            res.append((end - start).microseconds)
+
+        return res

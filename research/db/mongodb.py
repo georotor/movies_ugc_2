@@ -1,5 +1,5 @@
 import random
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from pymongo import MongoClient
 
@@ -18,7 +18,7 @@ class TestMongo:
         self.client.drop_database('research')
         self.client.close()
 
-    def bookmarks(self, data: list) -> timedelta:
+    def bookmarks(self, data: list) -> list:
         collection = self.db.bookmarks
 
         collection.insert_many([
@@ -28,15 +28,20 @@ class TestMongo:
             } for user_id, film_id in data
         ])
 
-        start = datetime.now()
+        res = []
+
         for _ in range(settings.bookmarks_count):
+            start = datetime.now()
+
             user_id, film_id = random.choice(data)
             collection.find_one({'user_id': str(user_id)})
-        end = datetime.now()
 
-        return end - start
+            end = datetime.now()
+            res.append((end - start).microseconds)
 
-    def likes(self, data: list, film_ids: list) -> timedelta:
+        return res
+
+    def likes(self, data: list, film_ids: list) -> list:
         collection = self.db.likes
 
         collection.insert_many([
@@ -47,7 +52,8 @@ class TestMongo:
             } for film_id, user_id, score in data
         ])
 
-        start = datetime.now()
+        res = []
+
         for film_id in film_ids:
             pipeline = [
                 {'$match': {
@@ -59,8 +65,44 @@ class TestMongo:
                 }}
             ]
 
+            start = datetime.now()
+
             for _ in collection.aggregate(pipeline):
                 pass
-        end = datetime.now()
 
-        return end - start
+            end = datetime.now()
+            res.append((end - start).microseconds)
+
+        return res
+
+    def likes_insert(self, data: list) -> list:
+        collection = self.db.likes
+
+        res = []
+
+        for film_id, user_id, score in data:
+            pipeline = [
+                {'$match': {
+                    'film_id': str(film_id)
+                }},
+                {'$group': {
+                    '_id': None,
+                    'avgscore': {'$avg': '$score'}
+                }}
+            ]
+
+            start = datetime.now()
+
+            collection.insert_one({
+                'film_id': str(film_id),
+                'user_id': str(user_id),
+                'score': score
+            })
+
+            for _ in collection.aggregate(pipeline):
+                pass
+
+            end = datetime.now()
+            res.append((end - start).microseconds)
+
+        return res
