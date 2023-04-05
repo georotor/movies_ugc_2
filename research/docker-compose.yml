@@ -1,0 +1,40 @@
+version: '3'
+services:
+  cassandra:
+    image: cassandra:4.1.1
+    ports:
+      - 9042:9042
+    deploy:
+      resources:
+        limits:
+          cpus: '6'
+          memory: 3G
+        reservations:
+          cpus: '6'
+          memory: 3G
+
+  mongo:
+    image: mongo:6.0.5
+    ports:
+      - 27017:27017
+    deploy:
+      resources:
+        limits:
+          cpus: '6'
+          memory: 3G
+        reservations:
+          cpus: '6'
+          memory: 3G
+
+  research:
+    build: ./
+    environment:
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27017
+      - CASSANDRA_HOST=cassandra
+      - CASSANDRA_PORT=9042
+      - BOOKMARKS_COUNT=100000
+      - LIKES_COUNT=100000
+    depends_on:
+      - cassandra
+      - mongo
