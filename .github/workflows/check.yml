@@ -36,7 +36,7 @@ jobs:
           mypy_flags: --ignore-missing-imports
           python_version: ${{matrix.version}}
 
-      - name: send telegram message on push
+      - name: Send telegram message on pull request
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_TO }}
