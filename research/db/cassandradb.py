@@ -1,3 +1,4 @@
+"""Модуль с тестами для Cassandra."""
 import random
 from datetime import datetime
 
@@ -7,7 +8,7 @@ from config import settings
 
 
 SQL_CREATE_KEYSPACE = """
-    CREATE KEYSPACE IF NOT EXISTS research 
+    CREATE KEYSPACE IF NOT EXISTS research
     WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : '1' }
 """
 
@@ -29,23 +30,27 @@ SQL_CREATE_LIKES = """
 
 
 class TestCassandra:
+    """Класс с тестами для Cassandra."""
+
     def __init__(self):
+        """Подключение к БД и создание необходимых таблиц."""
         self.cluster = Cluster([settings.cassandra_host])
         self.session = self.cluster.connect()
 
         self.session.execute(SQL_CREATE_KEYSPACE)
-        self.session.set_keyspace('research')
 
         self.session.execute(SQL_CREATE_BOOKMARKS)
         self.session.execute(SQL_CREATE_LIKES)
 
     def close(self):
+        """Очистка БД и закрытие соединения."""
         self.session.execute('DROP KEYSPACE research')
         self.cluster.shutdown()
 
-    def bookmarks(self, data: list) -> list:
-        insert = self.session.prepare('INSERT INTO bookmarks(user_id, film_ids) VALUES(?, ?)')
-        for user_id, film_id in data:
+    def bookmarks(self, bookmarks_data: list) -> list:
+        """Тесты на чтение закладок."""
+        insert = self.session.prepare('INSERT INTO research.bookmarks(user_id, film_ids) VALUES(?, ?)')
+        for user_id, film_id in bookmarks_data:
             self.session.execute(insert, (user_id, (film_id,)))
 
         res = []
@@ -53,17 +58,18 @@ class TestCassandra:
         for _ in range(settings.bookmarks_count):
             start = datetime.now()
 
-            user_id, film_id = random.choice(data)
-            self.session.execute("SELECT * FROM bookmarks WHERE user_id={}".format(user_id)).one()
+            bookmark = random.choice(bookmarks_data)
+            self.session.execute('SELECT * FROM research.bookmarks WHERE user_id=%s', (bookmark[0],)).one()
 
             end = datetime.now()
             res.append((end - start).microseconds)
 
         return res
 
-    def likes(self, data: list, film_ids: list) -> list:
-        insert = self.session.prepare('INSERT INTO likes(film_id, user_id, score) VALUES(?, ?, ?)')
-        for row in data:
+    def likes(self, likes_data: list, film_ids: list) -> list:
+        """Тесты на чтение средней оценки кинопроизведения."""
+        insert = self.session.prepare('INSERT INTO research.likes(film_id, user_id, score) VALUES(?, ?, ?)')
+        for row in likes_data:
             self.session.execute(insert, row)
 
         res = []
@@ -71,22 +77,23 @@ class TestCassandra:
         for film_id in film_ids:
             start = datetime.now()
 
-            self.session.execute("SELECT AVG (score) FROM likes WHERE film_id={}".format(film_id)).one()
+            self.session.execute('SELECT AVG (score) FROM research.likes WHERE film_id=%s', (film_id,)).one()
 
             end = datetime.now()
             res.append((end - start).microseconds)
 
         return res
 
-    def likes_insert(self, data: list) -> list:
+    def likes_insert(self, likes_data: list) -> list:
+        """Тесты на скорость записи лайков и последующем чтении средней оценки фильма."""
         res = []
 
-        insert = self.session.prepare('INSERT INTO likes(film_id, user_id, score) VALUES(?, ?, ?)')
-        for film_id, user_id, score in data:
+        insert = self.session.prepare('INSERT INTO research.likes(film_id, user_id, score) VALUES(?, ?, ?)')
+        for film_id, user_id, score in likes_data:
             start = datetime.now()
 
             self.session.execute(insert, (film_id, user_id, score))
-            self.session.execute("SELECT AVG (score) FROM likes WHERE film_id={}".format(film_id)).one()
+            self.session.execute('SELECT AVG (score) FROM research.likes WHERE film_id=%s', (film_id,)).one()
 
             end = datetime.now()
             res.append((end - start).microseconds)

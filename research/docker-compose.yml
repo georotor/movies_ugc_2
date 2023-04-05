@@ -1,7 +1,7 @@
 version: '3'
 services:
   cassandra:
-    image: cassandra:latest
+    image: cassandra:4.1.1
     ports:
       - 9042:9042
     deploy:
@@ -14,7 +14,7 @@ services:
           memory: 3G
 
   mongo:
-    image: mongo:latest
+    image: mongo:6.0.5
     ports:
       - 27017:27017
     deploy:
