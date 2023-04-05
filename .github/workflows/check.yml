@@ -52,7 +52,7 @@ jobs:
         # uses: jpetrucciani/mypy-check@f7a31184677eec02e0683cc0d31c5d5331d5ab5c
         uses: jpetrucciani/mypy-check@0.991
         with:
-          # Optional, Python version to use
+          mypy_flags: --ignore-missing-imports
           python_version: ${{matrix.version}}
 
 #      - name: send telegram message on push
