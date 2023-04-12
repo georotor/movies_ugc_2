@@ -1,9 +1,33 @@
-"""Модели для валидации данных FastAPI."""
+"""Модели для валидации данных базовых UGC объектов."""
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
-from models.base_model import ORJSONBaseModel
+import orjson
+from pydantic import BaseModel
+
+
+def orjson_dumps(row_data, *, default):
+    """Функция для дампа в ORJSON.
+
+    Args:
+        row_data: данные для дампа;
+        default: функция-сериалайзер по умолчанию.
+
+    Returns:
+        JSON дамп.
+
+    """
+    return orjson.dumps(row_data, default=default).decode()
+
+
+class ORJSONBaseModel(BaseModel):
+    """Базовая модель с измененным сериализатором."""
+
+    class Config:
+        """Используем ORJSON для лучшей производительности."""
+
+        json_loads = orjson.loads
+        json_dumps = orjson_dumps
 
 
 class UGCModel(ORJSONBaseModel):
@@ -15,7 +39,7 @@ class UGCModel(ORJSONBaseModel):
     """
 
     user_id: UUID
-    film_id: UUID
+    obj_id: UUID
     date: datetime
 
 
@@ -30,12 +54,6 @@ class Bookmark(UGCModel):
     timestamp: int = 0
 
 
-class Like(UGCModel):
-    """Оценка фильму - лайк (10) или дизлайк (0)."""
-
-    score: int = 10
-
-
 class Review(UGCModel):
     """Рецензия на фильм. Состоит из заглавия и тела рецензии."""
 
@@ -43,21 +61,7 @@ class Review(UGCModel):
     text: str
 
 
-class ReviewLike(ORJSONBaseModel):
-    """Лайк для ревью. Заменяем поле film_id на review_id."""
+class Like(UGCModel):
+    """Оценка фильму - лайк (10) или дизлайк (0)."""
 
-    user_id: UUID
-    review_id: UUID
-    date: datetime
-
-
-class FilmViewModel(ORJSONBaseModel):
-    """Общая информация и фильме: лайки, рейтинг, рецензии и пр."""
-
-    film_id: UUID
-    recent_likes: list[Optional[Like]]
-    absolute_rating: int
-    average_rating: float
-    likes: int
-    dislikes: int
-    recent_reviews: list[Optional[Review]]
+    score: int = 10

@@ -1,4 +1,9 @@
-"""Сервис для лайктов / рейтинга."""
+"""Сервис для лайктов / рейтинга.
+
+Лайки для фильмов и для обзоров представлены одним сервисом, но данные будут
+храниться в разных коллекциях.
+
+"""
 from functools import lru_cache
 from uuid import UUID
 
@@ -15,15 +20,21 @@ class LikeService(UGCService):
 
     def create(
         self,
-        film_id: UUID,
+        obj_id: UUID,
         user_id: UUID,
         score=10,
     ):
         """Переопределяем метод create, score для лайка - 10, для дизлайка - 0."""
-        return super().create(film_id, user_id, score=score)
+        return super().create(obj_id, user_id, score=score)
 
 
 @lru_cache()
 def get_like_service(db: AbstractDBManager = Depends(get_db_manager)):
-    """DI для FastAPI."""
+    """DI для FastAPI. Получаем сервис лайков для фильмов."""
     return LikeService(model=Like, db=db, collection_name='like')
+
+
+@lru_cache()
+def get_review_like_service(db: AbstractDBManager = Depends(get_db_manager)):
+    """DI для FastAPI. Получаем сервис лайков для обзоров."""
+    return LikeService(model=Like, db=db, collection_name='review_like')

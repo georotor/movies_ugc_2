@@ -15,13 +15,13 @@ class ReviewService(UGCService):
 
     def create(
         self,
-        film_id: UUID,
+        obj_id: UUID,
         user_id: UUID,
         title: str = '',
         text: str = '',
     ):
         """Переопределяем метод create, добавляя поля title и text."""
-        return super().create(film_id, user_id, title=title, text=text)
+        return super().create(obj_id, user_id, title=title, text=text)
 
 
 @lru_cache()

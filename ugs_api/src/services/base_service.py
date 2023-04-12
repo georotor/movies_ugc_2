@@ -42,18 +42,18 @@ class UGCService:
 
     async def get(
         self,
-        film_id: UUID,
+        obj_id: UUID,
         user_id: UUID,
     ):
         """GET запрос для поиска данных. Возвращает только одно значение.
 
         Args:
-          film_id: идентификатор фильма;
+          obj_id: идентификатор связанного объекта (фильма / обзора);
           user_id: идентификатор пользователя.
 
         """
         doc = await self.db.get(
-            self.collection_name, self._create_search_query(film_id, user_id),
+            self.collection_name, self._create_search_query(obj_id, user_id),
         )
         if not doc:
             return None
@@ -61,7 +61,7 @@ class UGCService:
 
     async def search(
         self,
-        film_id: Optional[UUID] = None,
+        obj_id: Optional[UUID] = None,
         user_id: Optional[UUID] = None,
         page_size: int = 10,
         page_number: int = 1,
@@ -73,14 +73,14 @@ class UGCService:
         Поддерживается пагинация (LIMIT / OFFSET) и сортировку.
 
         Args:
-          film_id: идентификатор фильма;
+          obj_id: идентификатор связанного объекта (фильма / обзора);
           user_id: идентификатор пользователя;
           page_size: кол-во данных на странице;
           page_number: номер страницы;
           sort: поле для сортировки, '-' означает обратный порядок сортировки.
 
         """
-        search_query = self._create_search_query(film_id, user_id)
+        search_query = self._create_search_query(obj_id, user_id)
         sort_order = -1 if sort.startswith('-') else 1
         docs = await self.db.search(
             self.collection_name,
@@ -95,7 +95,7 @@ class UGCService:
 
     async def create(
         self,
-        film_id: UUID,
+        obj_id: UUID,
         user_id: UUID,
         **kwargs,
     ):
@@ -105,50 +105,50 @@ class UGCService:
         то заменяем старую на новую.
 
         Args:
-          film_id: идентификатор фильма;
+          obj_id: идентификатор связанного объекта (фильма / обзора);
           user_id: идентификатор пользователя,
           kwargs: дополнительные данные объекта.
 
         """
-        if await self.get(film_id, user_id) is not None:
-            await self.delete(film_id, user_id)
+        if await self.get(obj_id, user_id) is not None:
+            await self.delete(obj_id, user_id)
 
-        search_query = self._create_search_query(film_id, user_id)
+        search_query = self._create_search_query(obj_id, user_id)
         search_query.update(kwargs)
         search_query['date'] = datetime.now()
         await self.db.create(self.collection_name, search_query)
 
-    async def delete(self, film_id: Optional[UUID], user_id: Optional[UUID]):
+    async def delete(self, obj_id: Optional[UUID], user_id: Optional[UUID]):
         """DELETE запрос для удаления данных.
 
         На данным этапе считаем, что связка "пользователь + фильм" уникальна и
         ничего лишнего мы не удалим. Можно добавить проверку на наличие записи,
         но это лишний запрос в БД:
 
-        if not await self.get(film_id, user_id):
+        if not await self.get(obj_id, user_id):
             raise DocNotFoundError('Запись не существует')
 
         Args:
-          film_id: идентификатор фильма;
+          obj_id: идентификатор связанного объекта (фильма / обзора);
           user_id: идентификатор пользователя.
 
         """
-        search_query = self._create_search_query(film_id, user_id)
+        search_query = self._create_search_query(obj_id, user_id)
         await self.db.delete(self.collection_name, search_query)
 
-    def _create_search_query(self, film_id, user_id):
+    def _create_search_query(self, obj_id, user_id):
         """Для простоты конвертации в bson приводим UUID к строке.
 
         Альтернатива - bson.Binary.from_uuid().
 
         Args:
-          film_id: идентификатор фильма;
+          obj_id: идентификатор связанного объекта (фильма / обзора);
           user_id: идентификатор пользователя.
 
         """
         query = {}
-        if film_id:
-            query['film_id'] = str(film_id)
+        if obj_id:
+            query['obj_id'] = str(obj_id)
         if user_id:
             query['user_id'] = str(user_id)
         return query

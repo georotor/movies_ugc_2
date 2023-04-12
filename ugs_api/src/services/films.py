@@ -5,7 +5,7 @@ from uuid import UUID
 from fastapi import Depends
 from pydantic import BaseModel
 
-from models.ugc_models import FilmViewModel
+from models.response_models import FilmResponseModel
 from services.like import LikeService, get_like_service
 from services.review import ReviewService, get_review_service
 
@@ -41,16 +41,16 @@ class FilmService:
 
         """
         likes = await self.like.search(
-            film_id=film_id,
+            obj_id=film_id,
             page_size=MAX_PAGE_SIZE,
             page_number=1,
             sort='-date',
         )
-
+        scores = [like.score for like in likes]
         return {
             'recent_likes': likes[:10],
-            'absolute_rating': sum([like.score for like in likes]),
-            'average_rating': sum([like.score for like in likes]) / len(likes),
+            'absolute_rating': sum(scores) if scores else None,
+            'average_rating': (sum(scores) / len(likes)) if scores else None,
             'likes': len([1 for like in likes if like.score == 10]),
             'dislikes': len([1 for like in likes if like.score == 0]),
         }
@@ -63,7 +63,7 @@ class FilmService:
 
         """
         reviews = await self.review.search(
-            film_id=film_id,
+            obj_id=film_id,
             page_size=MAX_PAGE_SIZE,
             page_number=1,
             sort='-date',
@@ -81,5 +81,5 @@ def get_film_service(
 ):
     """DI для FastAPI."""
     return FilmService(
-        model=FilmViewModel, like=like, review=review,
+        model=FilmResponseModel, like=like, review=review,
     )
