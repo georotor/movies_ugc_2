@@ -1,10 +1,12 @@
 """Ручка для получения информации и фильмах."""
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi import APIRouter, Depends, Query, status
 
 from models.aggregate_models import UserResponseModel
-from services.aggregate_service import AggregateService, get_user_aggregate_service
+from services.aggregate_service import (AggregateService,
+                                        get_user_aggregate_service)
+from services.auth import bearer
 
 router = APIRouter()
 
@@ -16,11 +18,10 @@ router = APIRouter()
     description='Подробная информация о своей активности.',
 )
 async def user_detail(
-    request: Request,
+    user_id: UUID = Depends(bearer),
     service: AggregateService = Depends(get_user_aggregate_service),
 ):
     """Личный кабинет пользователя с полной информацией."""
-    user_id = request.state.user_id
     likes = await service.like.search(user_id=user_id, sort='-date', page_size=10)
     reviews = await service.review.search(user_id=user_id, sort='-date', page_size=10)
     bookmarks = await service.bookmark.search(user_id=user_id, sort='-date', page_size=10)
@@ -42,11 +43,10 @@ async def user_detail(
     status_code=status.HTTP_201_CREATED,
 )
 async def get_user(
-    request: Request,
+    user_id: UUID,
     service: AggregateService = Depends(get_user_aggregate_service),
 ):
     """Просмотр минимальной информации о любом пользователе."""
-    user_id = request.state.user_id
     reviews = await service.review.search(user_id, sort='-date', page_size=10)
 
     user_data = {
@@ -64,15 +64,15 @@ async def get_user(
     status_code=status.HTTP_201_CREATED,
 )
 async def add_bookmark(
-    request: Request,
     film_id: UUID,
     timestamp: int = Query(default=0, alias='timestamp'),
+    user_id: UUID = Depends(bearer),
     service: AggregateService = Depends(get_user_aggregate_service),
 ):
     """Добавить закладку для фильма."""
     await service.bookmark.create(
         obj_id=film_id,
-        user_id=request.state.user_id,
+        user_id=user_id,
         timestamp=timestamp,
     )
     return {'status': 'successfully created'}
@@ -85,13 +85,13 @@ async def add_bookmark(
     status_code=status.HTTP_200_OK,
 )
 async def remove_bookmark(
-    request: Request,
     film_id: UUID,
+    user_id: UUID = Depends(bearer),
     service: AggregateService = Depends(get_user_aggregate_service),
 ):
     """Удалить закладку для фильма."""
     await service.bookmark.delete(
         obj_id=film_id,
-        user_id=request.state.user_id,
+        user_id=user_id,
     )
     return {'status': 'successfully deleted'}
