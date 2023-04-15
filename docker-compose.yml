@@ -1,5 +1,5 @@
 services:
-  mongodb_container:
+  mongodb:
     container_name: mongodb_container
     image: mongo
     ports:

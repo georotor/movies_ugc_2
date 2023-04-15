@@ -1,6 +1,12 @@
-"""Config for fast api kafka."""
+"""Config for fast api."""
 
-from pydantic import BaseSettings
+from pydantic import BaseModel, BaseSettings
+
+
+class Logging(BaseModel):
+    level_root: str = 'INFO'
+    level_uvicorn: str = 'INFO'
+    level_console: str = 'DEBUG'
 
 
 class Settings(BaseSettings):
@@ -15,13 +21,13 @@ class Settings(BaseSettings):
     auth_url: str = 'http://127.0.0.1:5000/api/v1/user/is_authenticated'
     cache_expire: int = 600
 
-    KAFKA_HOST: str = 'localhost'
-    KAFKA_PORT: int = 9092
     MONGO_HOST = '127.0.0.1'
     MONGO_PORT = 27017
     MONGO_DB_NAME = 'ugc'
     DEFAULT_LIMIT = 10
     DEFAULT_OFFSET = 0
+
+    logging: Logging = Logging()
 
 
 settings = Settings()
