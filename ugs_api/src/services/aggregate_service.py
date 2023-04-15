@@ -5,12 +5,9 @@ from uuid import UUID
 from fastapi import Depends
 from pydantic import BaseModel
 
-from models.aggregate_models import (FilmAggregateModel,
-                                     ReviewAggregateDetailModel,
-                                     UserResponseModel)
+from models.aggregate_models import FilmAggregateModel, ReviewAggregateDetailModel, UserResponseModel
 from services.ugc.bookmark import BookmarkService, get_bookmark_service
-from services.ugc.like import (LikeService, get_like_service,
-                               get_review_like_service)
+from services.ugc.like import LikeService, get_like_service, get_review_like_service
 from services.ugc.review import ReviewService, get_review_service
 
 MAX_PAGE_SIZE = 9999

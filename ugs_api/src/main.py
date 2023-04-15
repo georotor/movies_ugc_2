@@ -1,13 +1,7 @@
-"""Приложение FastAPI.
-
-Для удобства дебага можно добавить:
-
-if __name__ == '__main__':
-    uvicorn.run('main:app', host='0.0.0.0', port=8000, reload=True)
-
-"""
+"""Приложение FastAPI."""
 from uuid import uuid4
 
+import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import ORJSONResponse
 
@@ -46,3 +40,7 @@ async def authenticate_user(request: Request, call_next):
 app.include_router(films.router, prefix='/api/v1/films', tags=['films'])
 app.include_router(reviews.router, prefix='/api/v1/reviews', tags=['reviews'])
 app.include_router(users.router, prefix='/api/v1/users', tags=['users'])
+
+
+if __name__ == '__main__':
+    uvicorn.run('main:app', host='127.0.0.1', port=int('8000'), reload=True)

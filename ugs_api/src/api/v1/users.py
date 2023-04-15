@@ -4,8 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query, Request, status
 
 from models.aggregate_models import UserResponseModel
-from services.aggregate_service import (AggregateService,
-                                        get_user_aggregate_service)
+from services.aggregate_service import AggregateService, get_user_aggregate_service
 
 router = APIRouter()
 
