@@ -8,6 +8,8 @@ services:
       - discovery.type=single-node
     ports:
       - 9200:9200
+    networks:
+      - ugc
 
   kibana:
     image: kibana:7.17.9
@@ -17,6 +19,8 @@ services:
       - 5601:5601
     depends_on:
       - elastic
+    networks:
+      - ugc
 
   logstash:
     image: logstash:7.17.9
@@ -31,6 +35,12 @@ services:
     command: logstash -f /config/logstash.conf
     depends_on:
       - elastic
+    networks:
+      - ugc
 
 volumes:
   elastic_data:
+
+networks:
+   ugc:
+     name: ugc

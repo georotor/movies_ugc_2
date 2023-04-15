@@ -13,7 +13,6 @@ from db.mongo import get_mongo
 from logger import LOGGING
 from settings import settings
 
-
 logging_config.dictConfig(LOGGING)
 
 MAX_CONNECTIONS = 20

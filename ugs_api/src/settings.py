@@ -4,6 +4,8 @@ from pydantic import BaseModel, BaseSettings
 
 
 class Logging(BaseModel):
+    """Основные уровни логирования."""
+
     level_root: str = 'INFO'
     level_uvicorn: str = 'INFO'
     level_console: str = 'DEBUG'

@@ -1,15 +1,17 @@
 """Config for logger."""
+import types
+
 from settings import settings
 
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-LOG_DEFAULT_HANDLERS = ['console', ]
+LOG_DEFAULT_HANDLERS = ('console', )
 
-LOGGING = {
+LOGGING = types.MappingProxyType({
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': LOG_FORMAT
+            'format': LOG_FORMAT,
         },
         'default': {
             '()': 'uvicorn.logging.DefaultFormatter',
@@ -57,4 +59,4 @@ LOGGING = {
         'formatter': 'verbose',
         'handlers': LOG_DEFAULT_HANDLERS,
     },
-}
+})
