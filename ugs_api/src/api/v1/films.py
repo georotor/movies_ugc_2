@@ -89,7 +89,7 @@ async def delete_like(
 async def add_review(
     film_id: UUID,
     title: str = Query(default=..., alias='title'),
-    text: str = Query(default=..., alias='text'),
+    text: str = Query(default=..., alias='text', min_length=5),
     user_id: UUID = Depends(bearer),
     service: AggregateService = Depends(get_film_aggregate_service),
 ):

@@ -42,7 +42,6 @@ async def user_detail(
     '/{user_id}',
     summary='Информация о пользователе',
     description='Минимальная информация о любом пользователе.',
-    status_code=status.HTTP_201_CREATED,
 )
 async def get_user(
     user_id: UUID,
