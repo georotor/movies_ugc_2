@@ -1,0 +1,6 @@
+fastapi==0.95.0
+motor==3.1.2
+orjson==3.8.9
+pydantic==1.10.7
+pymongo==4.3.3
+uvicorn==0.21.1
