@@ -1,9 +1,9 @@
 """Приложение FastAPI."""
 import backoff
-import redis.asyncio as aioredis
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+from redis import asyncio as aioredis
 
 from api.v1 import films, reviews, users
 from db import redis

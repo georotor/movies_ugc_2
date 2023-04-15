@@ -4,10 +4,8 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 
-from models.aggregate_models import (ReviewAggregateBriefModel,
-                                     ReviewAggregateDetailModel)
-from services.aggregate_service import (AggregateService,
-                                        get_review_aggregate_service)
+from models.aggregate_models import ReviewAggregateBriefModel, ReviewAggregateDetailModel
+from services.aggregate_service import AggregateService, get_review_aggregate_service
 from services.auth import bearer
 
 router = APIRouter()

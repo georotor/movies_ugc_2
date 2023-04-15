@@ -6,7 +6,7 @@ from uuid import UUID
 import aiohttp
 import backoff
 from fastapi import HTTPException, Request, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import HTTPBearer
 from jwt import decode
 
 from db import redis
@@ -22,14 +22,14 @@ class JWTBearer(HTTPBearer):
         """Конструктор класса."""
         super().__init__(auto_error=auto_error)
 
-    async def __call__(self, request: Request) -> UUID:
+    async def __call__(self, request: Request):
         """Работа с credentials.
 
         Raises:
             HTTPException: HTTP_403_FORBIDDEN
 
         """
-        credentials: HTTPAuthorizationCredentials = await super().__call__(request)
+        credentials = await super().__call__(request)
         if credentials:
             if credentials.scheme != 'Bearer':
                 raise HTTPException(
@@ -43,7 +43,7 @@ class JWTBearer(HTTPBearer):
                     status_code=status.HTTP_403_FORBIDDEN, detail='Auth: Invalid token or expired token.',
                 )
 
-            return payload.get('sub')
+            return UUID(payload.get('sub'))
 
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail='Invalid authorization code.',
@@ -62,7 +62,8 @@ class JWTBearer(HTTPBearer):
         """
         try:
             payload = decode(token, options={'verify_signature': False})
-            if payload.get('exp') > datetime.now(timezone.utc).timestamp():
+            exp = int(str(payload.get('exp')))
+            if exp > datetime.now(timezone.utc).timestamp():
                 return payload
         except Exception:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Invalid token.')
@@ -81,7 +82,7 @@ class JWTBearer(HTTPBearer):
         if not settings.jwt_validate:
             return True
 
-        cache = await self._jwt_from_cache(payload.get('jti'))
+        cache = await self._jwt_from_cache(UUID(payload.get('jti')))
         if cache is not None:
             return bool(int(cache))
 
@@ -103,8 +104,9 @@ class JWTBearer(HTTPBearer):
     async def _put_jwt_to_cache(self, payload: dict, value: bool):
         ex = settings.cache_expire
         dt_now = datetime.now(timezone.utc).timestamp()
-        if payload.get('exp') - dt_now < ex:
-            ex = payload.get('exp') - datetime.now(timezone.utc).timestamp()
+        exp = int(str(payload.get('exp')))
+        if exp - dt_now < ex:
+            ex = exp - datetime.now(timezone.utc).timestamp()
 
         await redis.client.set(payload.get('jti'), int(value), ex)
 
