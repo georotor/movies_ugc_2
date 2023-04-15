@@ -1,4 +1,8 @@
-"""Модели для валидации данных базовых UGC объектов."""
+"""Модели для базовых UGC объектов.
+
+Служат для валидации данных при записи и чтении из таблиц (коллекций) БД.
+
+"""
 from datetime import datetime
 from uuid import UUID
 
@@ -57,6 +61,7 @@ class Bookmark(UGCModel):
 class Review(UGCModel):
     """Рецензия на фильм. Состоит из заглавия и тела рецензии."""
 
+    review_id: UUID
     title: str
     text: str
 
