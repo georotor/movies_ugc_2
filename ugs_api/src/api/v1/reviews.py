@@ -2,10 +2,11 @@
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi import APIRouter, Depends, Query, status
 
 from models.aggregate_models import ReviewAggregateBriefModel, ReviewAggregateDetailModel
 from services.aggregate_service import AggregateService, get_review_aggregate_service
+from services.auth import bearer
 
 router = APIRouter()
 
@@ -92,15 +93,15 @@ async def get_reviews_list(
     status_code=status.HTTP_201_CREATED,
 )
 async def add_like(
-    request: Request,
     review_id: UUID,
     score: int = Query(default=10, alias='score', ge=0, le=10),
+    user_id: UUID = Depends(bearer),
     service: AggregateService = Depends(get_review_aggregate_service),
 ):
     """Добавить лайк или дизлайк. Оценки взаимно заменяемы."""
     await service.like.create(
         obj_id=review_id,
-        user_id=request.state.user_id,
+        user_id=user_id,
         score=score,
     )
     return {'status': 'successfully created'}
@@ -113,13 +114,13 @@ async def add_like(
     status_code=status.HTTP_200_OK,
 )
 async def delete_like(
-    request: Request,
     review_id: UUID,
+    user_id: UUID = Depends(bearer),
     service: AggregateService = Depends(get_review_aggregate_service),
 ):
     """Удалить лайки или дизлайк."""
     await service.like.delete(
         obj_id=review_id,
-        user_id=request.state.user_id,
+        user_id=user_id,
     )
     return {'status': 'successfully deleted'}

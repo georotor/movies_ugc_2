@@ -1,10 +1,11 @@
 """Ручка для получения информации и фильмах."""
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi import APIRouter, Depends, Query, status
 
 from models.aggregate_models import FilmAggregateModel
 from services.aggregate_service import AggregateService, get_film_aggregate_service
+from services.auth import bearer
 
 router = APIRouter()
 
@@ -16,14 +17,14 @@ router = APIRouter()
     description='Подробные данные о фильме.',
 )
 async def get_film(
-    request: Request,
     film_id: UUID,
+    user_id: UUID = Depends(bearer),
     service: AggregateService = Depends(get_film_aggregate_service),
 ):
     """Получить информацию о фильме."""
     ratings = await service.get_rating(film_id)
     reviews = await service.review.search(film_id, sort='-date', page_size=10)
-    bookmark = await service.bookmark.get(film_id, request.state.user_id)
+    bookmark = await service.bookmark.get(film_id, user_id)
 
     film_data = {
         'film_id': film_id,
@@ -42,15 +43,15 @@ async def get_film(
     status_code=status.HTTP_201_CREATED,
 )
 async def add_like(
-    request: Request,
     film_id: UUID,
     score: int = Query(default=10, alias='score', ge=0, le=10),
+    user_id: UUID = Depends(bearer),
     service: AggregateService = Depends(get_film_aggregate_service),
 ):
     """Добавить лайк или дизлайк. Оценки взаимно заменяемы."""
     await service.like.create(
         obj_id=film_id,
-        user_id=request.state.user_id,
+        user_id=user_id,
         score=score,
     )
     return {'status': 'successfully created'}
@@ -63,14 +64,14 @@ async def add_like(
     status_code=status.HTTP_200_OK,
 )
 async def delete_like(
-    request: Request,
     film_id: UUID,
+    user_id: UUID = Depends(bearer),
     service: AggregateService = Depends(get_film_aggregate_service),
 ):
     """Удалить лайки или дизлайк."""
     await service.like.delete(
         obj_id=film_id,
-        user_id=request.state.user_id,
+        user_id=user_id,
     )
     return {'status': 'successfully deleted'}
 
@@ -82,16 +83,16 @@ async def delete_like(
     status_code=status.HTTP_201_CREATED,
 )
 async def add_review(
-    request: Request,
     film_id: UUID,
     title: str = Query(default=..., alias='title'),
     text: str = Query(default=..., alias='text'),
+    user_id: UUID = Depends(bearer),
     service: AggregateService = Depends(get_film_aggregate_service),
 ):
     """Добавить обзор."""
     await service.review.create(
         obj_id=film_id,
-        user_id=request.state.user_id,
+        user_id=user_id,
         title=title,
         text=text,
     )
@@ -105,13 +106,13 @@ async def add_review(
     status_code=status.HTTP_200_OK,
 )
 async def delete_review(
-    request: Request,
     film_id: UUID,
+    user_id: UUID = Depends(bearer),
     service: AggregateService = Depends(get_film_aggregate_service),
 ):
     """Удалить обзор."""
     await service.review.delete(
         obj_id=film_id,
-        user_id=request.state.user_id,
+        user_id=user_id,
     )
     return {'status': 'successfully deleted'}
