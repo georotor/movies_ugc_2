@@ -33,7 +33,7 @@ jobs:
       - name: Mypy Check
         uses: jpetrucciani/mypy-check@0.991
         with:
-          requirements_file: ugc_api/requirements.txt
+          requirements_file: ugs_api/requirements.txt
           mypy_flags: --ignore-missing-imports --explicit-package-bases
           python_version: ${{matrix.version}}
 
