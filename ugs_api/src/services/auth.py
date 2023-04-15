@@ -9,7 +9,7 @@ from fastapi import HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import decode
 
-from db import redis
+from db import redis_db
 from settings import settings
 
 logger = logging.getLogger(__name__)
