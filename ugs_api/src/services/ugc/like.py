@@ -12,11 +12,11 @@ from fastapi import Depends
 from db_managers.abstract_manager import AbstractDBManager
 from db_managers.mongo import get_db_manager
 from models.ugc_models import Like
-from services.base_service import UGCService
+from services.ugc.base_service import UGCService
 
 
 class LikeService(UGCService):
-    """Сервис для лайктов / рейтинга."""
+    """Сервис для лайков / рейтинга."""
 
     def create(
         self,
