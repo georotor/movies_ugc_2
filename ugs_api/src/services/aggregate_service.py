@@ -18,7 +18,7 @@ class AggregateService:
 
     def __init__(
         self,
-        model: type(BaseModel),
+        model: type[BaseModel],
         like: LikeService,
         review: ReviewService,
         bookmark: BookmarkService,

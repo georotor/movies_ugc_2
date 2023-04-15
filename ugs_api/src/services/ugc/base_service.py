@@ -26,7 +26,7 @@ class UGCService:
 
     def __init__(
         self,
-        model: type(UGCModel),
+        model: type[UGCModel],
         db: AbstractDBManager,
         collection_name: str,
     ):
