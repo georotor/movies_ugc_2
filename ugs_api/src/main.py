@@ -1,4 +1,6 @@
 """Приложение FastAPI."""
+from logging import config as logging_config
+
 import backoff
 import uvicorn
 from fastapi import FastAPI
@@ -8,8 +10,10 @@ from redis import asyncio as aioredis
 from api.v1 import films, reviews, users
 from db import redis
 from db.mongo import get_mongo
+from logger import LOGGING
 from settings import settings
 
+logging_config.dictConfig(LOGGING)
 
 MAX_CONNECTIONS = 20
 
