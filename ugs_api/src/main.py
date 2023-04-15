@@ -11,7 +11,7 @@ from uuid import uuid4
 from fastapi import FastAPI, Request
 from fastapi.responses import ORJSONResponse
 
-from api.v1 import films, likes, reviews
+from api.v1 import films, reviews, users
 from db.mongo import get_mongo
 from settings import settings
 
@@ -43,6 +43,6 @@ async def authenticate_user(request: Request, call_next):
     request.state.user_id = uuid4()
     return await call_next(request)
 
-app.include_router(likes.router, prefix='/api/v1/likes', tags=['likes'])
 app.include_router(films.router, prefix='/api/v1/films', tags=['films'])
 app.include_router(reviews.router, prefix='/api/v1/reviews', tags=['reviews'])
+app.include_router(users.router, prefix='/api/v1/users', tags=['users'])
