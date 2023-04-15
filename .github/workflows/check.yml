@@ -33,7 +33,7 @@ jobs:
       - name: Mypy Check
         uses: jpetrucciani/mypy-check@0.991
         with:
-          mypy_flags: --ignore-missing-imports --explicit-package-bases
+          mypy_flags: --install-types --ignore-missing-imports --explicit-package-bases
           python_version: ${{matrix.version}}
 
       - name: Send telegram message on pull request
