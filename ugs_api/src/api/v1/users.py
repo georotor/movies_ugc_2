@@ -1,8 +1,10 @@
 """Ручка для получения информации и фильмах."""
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, Request, status
 
+from core.logger import logger
+from core.logs_sender import LogsSender, get_logs_sender
 from models.aggregate_models import UserResponseModel
 from services.aggregate_service import (AggregateService,
                                         get_user_aggregate_service)
@@ -64,16 +66,22 @@ async def get_user(
     status_code=status.HTTP_201_CREATED,
 )
 async def add_bookmark(
+    request: Request,
     film_id: UUID,
     timestamp: int = Query(default=0, alias='timestamp'),
     user_id: UUID = Depends(bearer),
     service: AggregateService = Depends(get_user_aggregate_service),
+    log_sender: LogsSender = Depends(get_logs_sender),
 ):
     """Добавить закладку для фильма."""
     await service.bookmark.create(
         obj_id=film_id,
         user_id=user_id,
         timestamp=timestamp,
+    )
+    logger.debug('Добавлена закладка для фильма {0}'.format(film_id))
+    await log_sender.send_bookmarks_logs(
+        request, {'film_id': film_id, timestamp: timestamp},
     )
     return {'status': 'successfully created'}
 
@@ -94,4 +102,5 @@ async def remove_bookmark(
         obj_id=film_id,
         user_id=user_id,
     )
+    logger.debug('Удаленка закладка для фильма {0}'.format(film_id))
     return {'status': 'successfully deleted'}

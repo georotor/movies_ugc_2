@@ -3,6 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 
+from core.logger import logger
 from models.aggregate_models import FilmAggregateModel
 from services.aggregate_service import (AggregateService,
                                         get_film_aggregate_service)
@@ -55,6 +56,7 @@ async def add_like(
         user_id=user_id,
         score=score,
     )
+    logger.debug('Добавлена оценка фильму {0}'.format(film_id))
     return {'status': 'successfully created'}
 
 
@@ -74,6 +76,7 @@ async def delete_like(
         obj_id=film_id,
         user_id=user_id,
     )
+    logger.debug('Удалена оценка фильму {0}'.format(film_id))
     return {'status': 'successfully deleted'}
 
 
@@ -97,6 +100,7 @@ async def add_review(
         title=title,
         text=text,
     )
+    logger.debug('Добавлен обзор фильму {0}'.format(film_id))
     return {'status': 'successfully created'}
 
 
@@ -116,4 +120,5 @@ async def delete_review(
         obj_id=film_id,
         user_id=user_id,
     )
+    logger.debug('Удален обзор фильму {0}'.format(film_id))
     return {'status': 'successfully deleted'}

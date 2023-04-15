@@ -4,6 +4,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 
+from core.logger import logger
 from models.aggregate_models import (ReviewAggregateBriefModel,
                                      ReviewAggregateDetailModel)
 from services.aggregate_service import (AggregateService,
@@ -106,6 +107,7 @@ async def add_like(
         user_id=user_id,
         score=score,
     )
+    logger.debug('Добавлена оценка обзору {0}'.format(review_id))
     return {'status': 'successfully created'}
 
 
@@ -125,4 +127,5 @@ async def delete_like(
         obj_id=review_id,
         user_id=user_id,
     )
+    logger.debug('Удалена оценка обзору {0}'.format(review_id))
     return {'status': 'successfully deleted'}
