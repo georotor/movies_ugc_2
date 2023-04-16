@@ -2,17 +2,16 @@
 import logging
 from logging import config as logging_config
 
-
 import backoff
-import uvicorn
 import sentry_sdk
+import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import ORJSONResponse
+from motor.motor_asyncio import AsyncIOMotorClient
 from redis import asyncio as aioredis
 
 from api.v1 import films, reviews, users
-from db import redis_db
-from db.mongo import get_mongo
+from db import mongo_db, redis_db
 from logger import LOGGING
 from settings import settings
 
@@ -27,7 +26,6 @@ logger = logging.getLogger(__name__)
 
 MAX_CONNECTIONS = 20
 
-mongo = get_mongo()
 
 app = FastAPI(
     title=settings.project_name,
@@ -57,7 +55,8 @@ async def before_request(request: Request, call_next):
 @app.on_event('startup')
 @backoff.on_exception(backoff.expo, (ConnectionError,))
 async def startup():
-    """Поднимаем Redis при закуске API."""
+    """Поднимаем Redis и Mongo при закуске API."""
+    mongo_db.mongo = AsyncIOMotorClient(settings.MONGO_HOST, settings.MONGO_PORT)
     if settings.jwt_validate:
         redis_db.client = await aioredis.from_url(
             'redis://{redis_host}:{redis_port}'.format(
@@ -67,6 +66,15 @@ async def startup():
             decode_responses=True,
             max_connections=MAX_CONNECTIONS,
         )
+
+
+@app.on_event('shutdown')
+async def shutdown():
+    """Закрываем подключения к БД при выключении API."""
+    mongo_db.mongo.close()
+    if settings.jwt_validate:
+        await redis_db.client.close()
+
 
 app.include_router(films.router, prefix='/api/v1/films', tags=['films'])
 app.include_router(reviews.router, prefix='/api/v1/reviews', tags=['reviews'])
