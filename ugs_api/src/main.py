@@ -35,7 +35,7 @@ async def before_request(request: Request, call_next):
     """Проверяем наличие Request-Id."""
     request_id = request.headers.get('X-Request-Id')
 
-    if not request_id:
+    if settings.request_id and not request_id:
         logger.warning('X-Request-Id is required')
         raise RuntimeError('X-Request-Id is required')
 
