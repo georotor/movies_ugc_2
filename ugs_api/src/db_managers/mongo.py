@@ -4,7 +4,7 @@ from functools import lru_cache
 from fastapi import Depends
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from db.mongo import get_mongo
+from db.mongo_db import get_mongo
 from db_managers.abstract_manager import AbstractDBManager
 from settings import settings
 
