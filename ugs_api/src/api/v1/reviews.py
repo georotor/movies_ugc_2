@@ -107,7 +107,7 @@ async def add_like(
         user_id=user_id,
         score=score,
     )
-    logger.debug('Добавлена оценка обзору {0}'.format(review_id))
+    logger.debug('Add like to review {0}'.format(review_id))
     return {'status': 'successfully created'}
 
 
@@ -127,5 +127,5 @@ async def delete_like(
         obj_id=review_id,
         user_id=user_id,
     )
-    logger.debug('Удалена оценка обзору {0}'.format(review_id))
+    logger.debug('Delete like from review {0}'.format(review_id))
     return {'status': 'successfully deleted'}
