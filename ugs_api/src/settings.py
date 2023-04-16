@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     """Основные настройки проекта."""
 
     project_name = 'UGS API'
-    logger_api_url = 'http://127.0.0.1:5050/api/v1/'
+    request_id: bool = True
     redis_host: str = 'localhost'
     redis_port: int = 6379
 
