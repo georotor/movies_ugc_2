@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     DEFAULT_LIMIT = 10
     DEFAULT_OFFSET = 0
 
+    sentry_dsn: str | None = None
+    traces_sample_rate: float = 1.0
+
     logging: Logging = Logging()
 
 

@@ -5,6 +5,7 @@ from logging import config as logging_config
 
 import backoff
 import uvicorn
+import sentry_sdk
 from fastapi import FastAPI, Request
 from fastapi.responses import ORJSONResponse
 from redis import asyncio as aioredis
@@ -14,6 +15,12 @@ from db import redis_db
 from db.mongo import get_mongo
 from logger import LOGGING
 from settings import settings
+
+if settings.sentry_dsn is not None:
+    sentry_sdk.init(
+        dsn=settings.sentry_dsn,
+        traces_sample_rate=settings.traces_sample_rate,
+    )
 
 logging_config.dictConfig(LOGGING)
 logger = logging.getLogger(__name__)
