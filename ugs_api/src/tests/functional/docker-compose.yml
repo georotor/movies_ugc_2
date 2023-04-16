@@ -1,0 +1,44 @@
+version: '3'
+services:
+  mongodb:
+    image: mongo
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongodb:27017/test --quiet
+      interval: 2s
+      timeout: 5s
+      retries: 120
+    networks:
+      - ugc_test
+
+  api:
+    build: ../../../.
+    image: api-image
+    depends_on:
+      - mongodb
+    environment:
+      - JWT_VALIDATE=0
+      - MONGO_HOST=mongodb
+    expose:
+      - 8000
+    ports:
+      - 8000:8000
+    networks:
+      - ugc_test
+
+  tests:
+    image: api-image
+    entrypoint: >
+      sh -c "pip3 install -r tests/functional/requirements.txt
+      && python3 -m pytest tests/functional/src"
+    depends_on:
+      - api
+    networks:
+      - ugc_test
+
+networks:
+   ugc_test:
+     name: ugc_test
