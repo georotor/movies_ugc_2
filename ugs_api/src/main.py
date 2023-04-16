@@ -1,9 +1,11 @@
 """Приложение FastAPI."""
+import logging
 from logging import config as logging_config
+
 
 import backoff
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import ORJSONResponse
 from redis import asyncio as aioredis
 
@@ -14,6 +16,7 @@ from logger import LOGGING
 from settings import settings
 
 logging_config.dictConfig(LOGGING)
+logger = logging.getLogger(__name__)
 
 MAX_CONNECTIONS = 20
 
@@ -25,6 +28,23 @@ app = FastAPI(
     openapi_url='/api/openapi.json',
     default_response_class=ORJSONResponse,
 )
+
+
+@app.middleware('http')
+async def before_request(request: Request, call_next):
+    """Проверяем наличие Request-Id."""
+    request_id = request.headers.get('X-Request-Id')
+
+    if not request_id:
+        logger.warning('X-Request-Id is required')
+        raise RuntimeError('X-Request-Id is required')
+
+    custom_logger = logging.LoggerAdapter(
+        logger, extra={'tag': 'ugs_api', 'request_id': request_id},
+    )
+    custom_logger.info('X-Request-Id: {0}'.format(request_id))
+
+    return await call_next(request)
 
 
 @app.on_event('startup')
