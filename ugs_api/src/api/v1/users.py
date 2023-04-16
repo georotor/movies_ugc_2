@@ -77,7 +77,7 @@ async def add_bookmark(
         user_id=user_id,
         timestamp=timestamp,
     )
-    logger.debug('Добавлена закладка для фильма {0}'.format(film_id))
+    logger.debug('Add bookmark to film {0}'.format(film_id))
 
     return {'status': 'successfully created'}
 
@@ -98,5 +98,5 @@ async def remove_bookmark(
         obj_id=film_id,
         user_id=user_id,
     )
-    logger.debug('Удаленка закладка для фильма {0}'.format(film_id))
+    logger.debug('Delete bookmark from film {0}'.format(film_id))
     return {'status': 'successfully deleted'}

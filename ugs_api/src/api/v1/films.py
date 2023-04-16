@@ -57,7 +57,7 @@ async def add_like(
         user_id=user_id,
         score=score,
     )
-    logger.debug('Добавлена оценка фильму {0}'.format(film_id))
+    logger.debug('Add like to film {0}'.format(film_id))
     return {'status': 'successfully created'}
 
 
@@ -77,7 +77,7 @@ async def delete_like(
         obj_id=film_id,
         user_id=user_id,
     )
-    logger.debug('Удалена оценка фильму {0}'.format(film_id))
+    logger.debug('Delete like from film {0}'.format(film_id))
     return {'status': 'successfully deleted'}
 
 
@@ -101,7 +101,7 @@ async def add_review(
         title=title,
         text=text,
     )
-    logger.debug('Добавлен обзор фильму {0}'.format(film_id))
+    logger.debug('Add review to film {0}'.format(film_id))
     return {'status': 'successfully created'}
 
 
@@ -121,5 +121,5 @@ async def delete_review(
         obj_id=film_id,
         user_id=user_id,
     )
-    logger.debug('Удален обзор фильму {0}'.format(film_id))
+    logger.debug('Delete review from film {0}'.format(film_id))
     return {'status': 'successfully deleted'}
