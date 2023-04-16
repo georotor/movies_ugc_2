@@ -15,7 +15,10 @@ class Settings(BaseSettings):
     """Основные настройки проекта."""
 
     project_name = 'UGS API'
+    uvicorn_host: str = '127.0.0.1'
+    uvicorn_port: int = 8000
     request_id: bool = True
+
     redis_host: str = 'localhost'
     redis_port: int = 6379
 
