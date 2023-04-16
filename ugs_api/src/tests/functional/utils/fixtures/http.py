@@ -57,19 +57,21 @@ def make_json_request(session):
 def make_get_request(session):
     """
     Фикстура для выполнения GET запросов.
+
     :param session: Клиент aiohttp.
     :return: Функция выполнения GET запросов.
     """
-    async def inner(url: str, params: dict | None = None):
+    async def inner(url: str, http_params: dict | None = None):
         """
-        Фикстура для выполнения GET запросов к API
+        Фикстура для выполнения GET запросов к API.
+
         :param url: URL запроса.
-        :param params: Словарь с параметрами для запроса.
+        :param http_params: Словарь с параметрами для запроса.
         :return: Ответ в виде HTTPResponse объекта.
         """
-        params = params or {}
+        http_params = http_params or {}
         url = test_settings.service_url + url
-        async with session.get(url, params=params) as response:
+        async with session.get(url, params=http_params) as response:
             return HTTPResponse(
                 body=await response.json(),
                 headers=response.headers,

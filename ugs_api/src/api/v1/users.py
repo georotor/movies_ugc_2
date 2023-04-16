@@ -1,13 +1,14 @@
 """Ручка для получения информации и фильмах."""
+import logging
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, Request, status
 
-from core.logger import logger
-from core.logs_sender import LogsSender, get_logs_sender
 from models.aggregate_models import UserResponseModel
 from services.aggregate_service import AggregateService, get_user_aggregate_service
 from services.auth import bearer
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -69,7 +70,6 @@ async def add_bookmark(
     timestamp: int = Query(default=0, alias='timestamp'),
     user_id: UUID = Depends(bearer),
     service: AggregateService = Depends(get_user_aggregate_service),
-    log_sender: LogsSender = Depends(get_logs_sender),
 ):
     """Добавить закладку для фильма."""
     await service.bookmark.create(
@@ -78,9 +78,7 @@ async def add_bookmark(
         timestamp=timestamp,
     )
     logger.debug('Добавлена закладка для фильма {0}'.format(film_id))
-    await log_sender.send_bookmarks_logs(
-        request, {'film_id': film_id, timestamp: timestamp},
-    )
+
     return {'status': 'successfully created'}
 
 

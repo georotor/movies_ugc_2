@@ -1,12 +1,14 @@
 """Ручка для получения информации и фильмах."""
+import logging
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 
-from core.logger import logger
 from models.aggregate_models import FilmAggregateModel
 from services.aggregate_service import AggregateService, get_film_aggregate_service
 from services.auth import bearer
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
