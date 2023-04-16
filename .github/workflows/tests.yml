@@ -18,7 +18,7 @@ jobs:
         with:
           file: ugs_api/src/tests/functional/docker-compose.yml
           service: tests
-          entrypoint: '/bin/sh -c'
+          entrypoint: '''/bin/sh -c'''
           command: '''pip3 install -r tests/functional/requirements.txt && python3 -m pytest tests/functional/src'''
 
       - name: Send telegram message on pull request
