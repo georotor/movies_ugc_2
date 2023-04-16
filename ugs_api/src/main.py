@@ -8,7 +8,7 @@ from fastapi.responses import ORJSONResponse
 from redis import asyncio as aioredis
 
 from api.v1 import films, reviews, users
-from db import redis
+from db import redis_db
 from db.mongo import get_mongo
 from logger import LOGGING
 from settings import settings
@@ -32,7 +32,7 @@ app = FastAPI(
 async def startup():
     """Поднимаем Redis при закуске API."""
     if settings.jwt_validate:
-        redis.client = await aioredis.from_url(
+        redis_db.client = await aioredis.from_url(
             'redis://{redis_host}:{redis_port}'.format(
                 redis_host=settings.redis_host, redis_port=settings.redis_port,
             ),

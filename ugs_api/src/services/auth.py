@@ -9,7 +9,7 @@ from fastapi import HTTPException, Request, status
 from fastapi.security import HTTPBearer
 from jwt import decode
 
-from db import redis
+from db import redis_db
 from settings import settings
 
 logger = logging.getLogger(__name__)
@@ -99,7 +99,7 @@ class JWTBearer(HTTPBearer):
             return res
 
     async def _jwt_from_cache(self, jti: UUID) -> bool:
-        return await redis.client.get(str(jti))
+        return await redis_db.client.get(str(jti))
 
     async def _put_jwt_to_cache(self, payload: dict, value: bool):
         ex = settings.cache_expire
@@ -108,7 +108,7 @@ class JWTBearer(HTTPBearer):
         if exp - dt_now < ex:
             ex = exp - datetime.now(timezone.utc).timestamp()
 
-        await redis.client.set(payload.get('jti'), int(value), ex)
+        await redis_db.client.set(payload.get('jti'), int(value), ex)
 
 
 bearer = JWTBearer()
