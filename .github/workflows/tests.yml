@@ -20,13 +20,3 @@ jobs:
           service: tests
           entrypoint: '''/bin/sh -c'''
           command: '''cd ugs_api/src && pip3 install -r tests/functional/requirements.txt && python3 -m pytest tests/functional/src'''
-
-      - name: Send telegram message on pull request
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: |
-            Test successfull on pull request from ${{ github.actor }} on Python ${{matrix.version}}
-            Repo: ${{ github.repository }}, ${{ github.event.head_commit.message }}
-            See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
