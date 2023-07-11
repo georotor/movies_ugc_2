@@ -1,0 +1,85 @@
+@startuml
+skinparam componentStyle uml2
+
+actor Менеджер as Manager
+actor Клиент as Client
+
+package "Admin panel" as Admin {
+    component "[Nginx]" as AdminNginx <<Web>>
+    component "[Django]" as AdminApp <<Application>>
+    database "[Postgres]" as AdminPostgres <<Storage>>
+
+    AdminPostgres <-down- AdminApp
+    AdminApp <-down- AdminNginx
+
+}
+
+package "ETL" as ETL {
+    component "[ETL]" as ETLApp <<Application>>
+}
+
+package "Async API" as AsyncAPI {
+    component "[Nginx]" as AsyncNginx <<Web>>
+    component "[FastAPI]" as AsyncApp <<Application>>
+    database "[Elasticsearch]" as Elasticsearch <<Storage>>
+    database "[Redis]" as AsyncRedis <<Cache>>
+
+    Elasticsearch <-- AsyncApp
+    AsyncApp -up-> AsyncRedis
+    AsyncApp <-down- AsyncNginx
+}
+
+package "Auth API" as AuthAPI{
+    component "[Nginx]" as AuthNginx <<Web>>
+    component "[Flask]" as AuthApp <<Application>>
+    database "[Postgres]" as AuthPostgres <<Storage>>
+    database "[Redis]" as AuthRedis <<Storage>>
+
+    AuthPostgres <-- AuthApp
+    AuthApp -up-> AuthRedis
+    AuthApp <-down- AuthNginx
+}
+
+package "Ugc API" as UgcApi {
+    component "[Nginx]" as UgcNginx <<Web>>
+    component "[FastAPI]" as UgcApp <<Application>>
+    component "[Kafka]" as UgcStream <<Streaming>>
+    database "[Redis]" as UgcRedis <<Cache>>
+    component "[ETL]" as UgcETL <<Application>>
+    database "[ClickHouse]" as ClickHouse <<Storage>>
+
+    UgcApp -up-> UgcStream
+    UgcApp -up-> UgcRedis
+    UgcETL -up-> ClickHouse
+    UgcETL <-up-> UgcStream
+    UgcNginx -up-> UgcApp
+}
+
+package "Ugc 2 API" as Ugc2Api #LightGreen {
+    component "[Nginx]" as Ugc2Nginx <<Web>>
+    component "[FastAPI]" as Ugc2App <<Application>>
+    database "[Mongo]" as Ugc2Mongo <<Storage>>
+    database "[Redis]" as Ugc2Redis <<Cache>>
+
+    Ugc2App <-- Ugc2Nginx
+    Ugc2App -down-> Ugc2Mongo
+    Ugc2App -down-> Ugc2Redis
+}
+
+AdminPostgres <-down-- ETLApp
+ETLApp --up-> Elasticsearch
+
+AsyncApp --> AuthNginx
+UgcApp --> AuthNginx
+Ugc2App --up-> AuthNginx
+
+
+AdminNginx <-- Manager
+
+Client -up-> AuthNginx
+Client -up-> AsyncNginx
+Client --> UgcNginx
+Client --> Ugc2Nginx
+
+
+@enduml
