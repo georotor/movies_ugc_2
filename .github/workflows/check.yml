@@ -36,13 +36,3 @@ jobs:
           requirements_file: ugs_api/requirements.txt
           mypy_flags: --ignore-missing-imports --explicit-package-bases
           python_version: ${{matrix.version}}
-
-      - name: Send telegram message on pull request
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: |
-            Successfull check pull request from ${{ github.actor }} on Python ${{matrix.version}}
-            Repo: ${{ github.repository }}, ${{ github.event.head_commit.message }}
-            See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
