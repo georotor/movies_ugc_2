@@ -1,15 +1,30 @@
-# Проектная работа 9 спринта
+# Movies: Сервис пользовательских данных
 
-https://github.com/georotor/ugc_sprint_2
+[![CI](https://github.com/georotor/movies_ugc_2/actions/workflows/check.yml/badge.svg)](https://github.com/georotor/movies_ugc_2/actions/workflows/check.yml)
+[![CI](https://github.com/georotor/movies_ugc_2/actions/workflows/tests.yml/badge.svg)](https://github.com/georotor/movies_ugc_2/actions/workflows/tests.yml)
+
+## Архитектура
+
+![Архитектура](https://github.com/georotor/movies_ugc_2/blob/main/docs/schema.png?raw=true)
+
+## Компоненты
+- [FastAPI - реализация API](https://github.com/georotor/movies_ugc_2/tree/main/ugs_api)
+- Mongo - хранилище
+- Redis - хранилище для кэша
+- [ELK - хранение и обработка логов](https://github.com/georotor/movies_ugc_2/tree/main/elk)
 
 ## Выбор хранилища
-[Тестирование производительности БД Mongo и Cassandra](https://github.com/georotor/ugc_sprint_2/tree/main/research)
+[Тестирование производительности БД Mongo и Cassandra](https://github.com/georotor/movies_ugc_2/tree/main/research)
 
+## Документация
+- [Общее описание API](https://github.com/georotor/movies_ugc_2/tree/main/ugs_api)
+- Swagger API доступен после запуска по адресу http://127.0.0.1/api/openapi
 
-## API
-Описание [UGC API](https://github.com/georotor/ugc_sprint_2/tree/main/ugs_api)
+## Запуск сервиса
 
-API запускается коммандой: `docker-compose up --build`
+```commandline
+docker-compose up --build
+```
 
 ## Тесты
 ```
